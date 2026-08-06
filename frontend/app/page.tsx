@@ -60,7 +60,6 @@ export default function Home() {
 
     const client = io(backendOrigin, {
       path: socketPath,
-      transports: ["websocket"],
     });
 
     setSocket(client);
