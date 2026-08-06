@@ -21,7 +21,8 @@ type ClickResponse = {
   message?: string;
 };
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "/api/flask";
+const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000";
+const apiBasePath = process.env.NEXT_PUBLIC_API_BASE_PATH ?? "/api/flask";
 
 export default function Home() {
   const [username, setUsername] = useState("");
@@ -54,7 +55,7 @@ export default function Home() {
       return;
     }
 
-    const client = io(backendUrl, {
+    const client = io(backendOrigin, {
       transports: ["websocket"],
     });
 
@@ -93,9 +94,10 @@ export default function Home() {
       setStatus("Disconnected");
     });
 
-    client.on("connect_error", () => {
-      setStatus("Connection failed");
-    });
+client.on("connect_error", (error) => {
+  console.error("Socket connect_error:", error);
+  setStatus(`Connection failed: ${error.message}`);
+});
 
     return () => {
       client.disconnect();
@@ -108,7 +110,7 @@ export default function Home() {
       return;
     }
 
-    void fetch(`${backendUrl}/get_score?session=${encodeURIComponent(session)}`)
+    void fetch(`${backendOrigin}${apiBasePath}/get_score?session=${encodeURIComponent(session)}`)
       .then(async (response) => {
         if (!response.ok) {
           return null;
@@ -125,7 +127,7 @@ export default function Home() {
   }, [session]);
 
   useEffect(() => {
-    void fetch(`${backendUrl}/get_leaderboard`)
+    void fetch(`${backendOrigin}${apiBasePath}/get_leaderboard`)
       .then(async (response) => {
         if (!response.ok) {
           return null;
@@ -151,7 +153,7 @@ export default function Home() {
 
     setMessage("Creating your player...");
 
-    const response = await fetch(`${backendUrl}/create_user`, {
+    const response = await fetch(`${backendOrigin}${apiBasePath}/create_user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
