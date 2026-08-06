@@ -21,9 +21,8 @@ type ClickResponse = {
   message?: string;
 };
 
-const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000";
-const apiBasePath = process.env.NEXT_PUBLIC_API_BASE_PATH ?? "/api/flask";
-if (typeof window !== "undefined") console.log("baked NEXT_PUBLIC_BACKEND_URL:", backendOrigin);
+const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_URL;
+const apiBasePath = process.env.NEXT_PUBLIC_API_BASE_PATH ?? "http://localhost:4000/api/flask";
 
 export default function Home() {
   const [username, setUsername] = useState("");
@@ -111,7 +110,7 @@ client.on("connect_error", (error) => {
       return;
     }
 
-    void fetch(`${backendOrigin}${apiBasePath}/get_score?session=${encodeURIComponent(session)}`)
+    void fetch(`${apiBasePath}/get_score?session=${encodeURIComponent(session)}`)
       .then(async (response) => {
         if (!response.ok) {
           return null;
@@ -128,7 +127,7 @@ client.on("connect_error", (error) => {
   }, [session]);
 
   useEffect(() => {
-    void fetch(`${backendOrigin}${apiBasePath}/get_leaderboard`)
+    void fetch(`${apiBasePath}/get_leaderboard`)
       .then(async (response) => {
         if (!response.ok) {
           return null;
@@ -154,7 +153,7 @@ client.on("connect_error", (error) => {
 
     setMessage("Creating your player...");
 
-    const response = await fetch(`${backendOrigin}${apiBasePath}/create_user`, {
+    const response = await fetch(`${apiBasePath}/create_user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
