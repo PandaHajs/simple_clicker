@@ -12,6 +12,13 @@
     },
     "rewrites": [
         {
+            "source": "/socket.io(/.*)?",
+            "destination": {
+                "type": "service",
+                "service": "backend"
+            }
+        },
+        {
             "source": "/api/flask(/.*)?",
             "destination": {
                 "type": "service",

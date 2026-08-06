@@ -23,9 +23,7 @@ type ClickResponse = {
 
 const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_URL;
 const apiBasePath = process.env.NEXT_PUBLIC_API_BASE_PATH ?? "http://localhost:4000/api/flask";
-const socketPath =
-  process.env.NEXT_PUBLIC_SOCKETIO_PATH ??
-  (apiBasePath.startsWith("http") ? "/socket.io" : `${apiBasePath.replace(/\/$/, "")}/socket.io`);
+const socketPath = process.env.NEXT_PUBLIC_SOCKETIO_PATH ?? "/socket.io";
 
 export default function Home() {
   const [username, setUsername] = useState("");
