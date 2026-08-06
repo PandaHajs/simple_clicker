@@ -23,7 +23,6 @@ type ClickResponse = {
 
 const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000";
 const apiBasePath = process.env.NEXT_PUBLIC_API_BASE_PATH ?? "/api/flask";
-// Temporary debug: show which backend URL was baked into the bundle
 if (typeof window !== "undefined") console.log("baked NEXT_PUBLIC_BACKEND_URL:", backendOrigin);
 
 export default function Home() {
