@@ -1,25 +1,25 @@
 services:
 #frontend
-  nextjs:
-    container_name: nextjs
-    image: nextjs:latest
-    build:
-      context: ./frontend
-      dockerfile: nextjs.dockerfile
-    ports:
-      - 3000:3000
-    depends_on:
-      - flaskapp
-    develop:
-      watch:
-        - action: rebuild
-          path: ./frontend/package.json
-        - action: rebuild
-          path: ./frontend/next.config.ts
-        - action: rebuild
-          path: ./frontend/app
-        - action: rebuild
-          path: ./frontend/public
+  # nextjs:
+  #   container_name: nextjs
+  #   image: nextjs:latest
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: nextjs.dockerfile
+  #   ports:
+  #     - 3000:3000
+  #   depends_on:
+  #     - flaskapp
+  #   develop:
+  #     watch:
+  #       - action: rebuild
+  #         path: ./frontend/package.json
+  #       - action: rebuild
+  #         path: ./frontend/next.config.ts
+  #       - action: rebuild
+  #         path: ./frontend/app
+  #       - action: rebuild
+  #         path: ./frontend/public
 #backend
   flaskapp:
     container_name: flaskapp
