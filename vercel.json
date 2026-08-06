@@ -8,7 +8,7 @@
              "bindings": [
                 {
                 "type": "service",
-                "service": "my_backend",
+                "service": "backend",
                 "format": "url",
                 "env": "BACKEND_INTERNAL_URL"      
                 }
