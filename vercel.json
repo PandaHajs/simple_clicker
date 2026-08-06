@@ -4,14 +4,14 @@
             "root": "frontend",
             "framework": "nextjs",
             "runtime": "container",
-            "entrypoint": "dockerfile.nextjs"
+            "entrypoint": "Dockerfile"
         },
         "backend": {
             "root": "backend",
             "framework": "flask",
             "runtime": "container",
             "buildCommand": "pip install -r requirements.txt && python app.py",
-            "entrypoint": "flask.dockerfile"
+            "entrypoint": "Dockerfile"
         }
     },
     "rewrites": [
