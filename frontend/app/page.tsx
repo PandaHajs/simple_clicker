@@ -21,7 +21,7 @@ type ClickResponse = {
   message?: string;
 };
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "/";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? process.env.BACKEND_INTERNAL_URL;
 
 export default function Home() {
   const [username, setUsername] = useState("");

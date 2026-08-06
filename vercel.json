@@ -2,9 +2,17 @@
     "services": {
         "frontend": {
             "root": "frontend",
-            "framework": "nextjs",
+            "framework": "nextjs",  
             "runtime": "container",
-            "entrypoint": "Dockerfile"
+            "entrypoint": "Dockerfile",
+             "bindings": [
+                {
+                "type": "service",
+                "service": "my_backend",
+                "format": "url",
+                "env": "BACKEND_INTERNAL_URL"      
+                }
+      ]
         },
         "backend": {
             "root": "backend",
