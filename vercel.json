@@ -3,15 +3,8 @@
         "frontend": {
             "root": "frontend",
             "framework": "nextjs",  
-            "buildCommand": "npm install && npm run build",
-             "bindings": [
-                {
-                "type": "service",
-                "service": "backend",
-                "format": "url",
-                "env": "BACKEND_INTERNAL_URL"      
-                }
-      ]
+            "runtime": "container",
+            "entrypoint": "Dockerfile",
         },
         "backend": {
             "root": "backend",
