@@ -15,7 +15,13 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = environ.get("SECRET_KEY", "dev")
 
 db = SQLAlchemy(app)
-ws = SocketIO(app, cors_allowed_origins=environ.get("CORS_ORIGINS", "*"), async_mode="threading")
+socketio_path = environ.get("SOCKETIO_PATH") or ("api/flask/socket.io" if environ.get("VERCEL") else "socket.io")
+ws = SocketIO(
+    app,
+    cors_allowed_origins=environ.get("CORS_ORIGINS", "*"),
+    async_mode="threading",
+    socketio_path=socketio_path,
+)
 
 
 class User(db.Model):

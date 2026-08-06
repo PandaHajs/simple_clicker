@@ -23,6 +23,9 @@ type ClickResponse = {
 
 const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_URL;
 const apiBasePath = process.env.NEXT_PUBLIC_API_BASE_PATH ?? "http://localhost:4000/api/flask";
+const socketPath =
+  process.env.NEXT_PUBLIC_SOCKETIO_PATH ??
+  (apiBasePath.startsWith("http") ? "/socket.io" : `${apiBasePath.replace(/\/$/, "")}/socket.io`);
 
 export default function Home() {
   const [username, setUsername] = useState("");
@@ -56,6 +59,7 @@ export default function Home() {
     }
 
     const client = io(backendOrigin, {
+      path: socketPath,
       transports: ["websocket"],
     });
 
@@ -94,10 +98,10 @@ export default function Home() {
       setStatus("Disconnected");
     });
 
-client.on("connect_error", (error) => {
-  console.error("Socket connect_error:", error);
-  setStatus(`Connection failed: ${error.message}`);
-});
+    client.on("connect_error", (error) => {
+      console.error("Socket connect_error:", error);
+      setStatus(`Connection failed: ${error.message}`);
+    });
 
     return () => {
       client.disconnect();
