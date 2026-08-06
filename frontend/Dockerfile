@@ -8,6 +8,8 @@
 # This Dockerfile uses Node.js 24.13.0-slim, which was the latest LTS version at the time of writing.
 # To ensure security and compatibility, regularly update the NODE_VERSION ARG to the latest LTS version.
 ARG NODE_VERSION=24.19.0
+ARG NEXT_PUBLIC_BACKEND_URL
+ARG NEXT_PUBLIC_API_BASE_PATH
 
 FROM node:${NODE_VERSION} AS dependencies
 
@@ -82,8 +84,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-ENV NEXT_PUBLIC_API_ENDPOINT=$NEXT_PUBLIC_BACKEND_URL
-ENV NEXT_PUBLIC_API_ENDPOINT=$NEXT_PUBLIC_API_BASE_PATH
+ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
+ENV NEXT_PUBLIC_API_BASE_PATH=${NEXT_PUBLIC_API_BASE_PATH}
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
@@ -101,6 +103,10 @@ RUN chown node:node .next
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+# Copy Next's NFT (node-file-trace) outputs and required server files so the
+# standalone server can locate traced assets at runtime.
+COPY --from=builder --chown=node:node /app/.next/next-server.js.nft.json ./.next/
+COPY --from=builder --chown=node:node /app/.next/required-server-files.json ./.next/
 
 # If you want to persist the fetch cache generated during the build so that
 # cached responses are available immediately on startup, uncomment this line:
