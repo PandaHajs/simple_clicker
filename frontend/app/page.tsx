@@ -21,7 +21,7 @@ type ClickResponse = {
   message?: string;
 };
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? process.env.BACKEND_INTERNAL_URL;
+const backendUrl = process.env.BACKEND_INTERNAL_URL ?? "http://localhost:4000";
 
 export default function Home() {
   const [username, setUsername] = useState("");

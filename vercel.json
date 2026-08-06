@@ -22,7 +22,7 @@
     },
     "rewrites": [
         {
-            "source": "/api/backend(/.*)?",
+            "source": "/api/flask(/.*)?",
             "destination": {
                 "type": "service",
                 "service": "backend"
