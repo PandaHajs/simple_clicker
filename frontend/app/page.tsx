@@ -21,7 +21,7 @@ type ClickResponse = {
   message?: string;
 };
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "/api";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "/api/flask";
 
 export default function Home() {
   const [username, setUsername] = useState("");
@@ -108,7 +108,7 @@ export default function Home() {
       return;
     }
 
-    void fetch(`${backendUrl}/api/flask/get_score?session=${encodeURIComponent(session)}`)
+    void fetch(`${backendUrl}/get_score?session=${encodeURIComponent(session)}`)
       .then(async (response) => {
         if (!response.ok) {
           return null;
@@ -125,7 +125,7 @@ export default function Home() {
   }, [session]);
 
   useEffect(() => {
-    void fetch(`${backendUrl}/api/flask/get_leaderboard`)
+    void fetch(`${backendUrl}/get_leaderboard`)
       .then(async (response) => {
         if (!response.ok) {
           return null;
@@ -151,7 +151,7 @@ export default function Home() {
 
     setMessage("Creating your player...");
 
-    const response = await fetch(`${backendUrl}/api/flask/create_user`, {
+    const response = await fetch(`${backendUrl}/create_user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
