@@ -1,1 +1,1 @@
-Simple clicker made using Next.js as frontend, flask and postgresql as backend, also utilizing websockets hopefully.
+Simple clicker made using Nextjs as frontend, Flask and Postgresql as backend, also utilizing websockets and Docker.

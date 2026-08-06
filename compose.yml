@@ -1,4 +1,50 @@
 services:
+#frontend
+  nextjs:
+    container_name: nextjs
+    image: nextjs:latest
+    build:
+      context: ./frontend
+      dockerfile: nextjs.dockerfile
+    ports:
+      - 3000:3000
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+    depends_on:
+      - flaskapp
+    develop:
+      watch:
+        - action: rebuild
+          path: ./frontend/package.json
+        - action: rebuild
+          path: ./frontend/next.config.ts
+        - action: rebuild
+          path: ./frontend/app
+        - action: rebuild
+          path: ./frontend/public
+#backend
+  flaskapp:
+    container_name: flaskapp
+    image: flaskapp:latest
+    build:
+      context: ./backend
+      dockerfile: flask.dockerfile
+    ports:
+      - 4000:4000
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+    depends_on:
+      - db
+    develop:
+      watch:
+        - action: rebuild
+          path: ./backend/app.py
+        - action: rebuild
+          path: ./backend/requirements.txt
+        - action: rebuild
+          path: ./backend/flask.dockerfile
+
+#database
   db:
     container_name: db
     image: postgres:18
