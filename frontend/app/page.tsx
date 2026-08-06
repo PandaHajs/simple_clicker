@@ -294,7 +294,6 @@ export default function Home() {
               <h2 className="text-lg font-semibold text-white">Leaderboard</h2>
               <span className="text-sm text-slate-400">Top 10</span>
             </div>
-
             <div className="mt-4 space-y-3">
               {leaderboard.length === 0 ? (
                 <p className="text-sm text-slate-400">No scores yet. Be first.</p>
