@@ -1,4 +1,10 @@
-nextjs.dockerfile
+# Exclude local environment files and build artifacts from Docker build context
+.env.local
+.env.*
+.next
+node_modules
+.git
+*.lognextjs.dockerfile
 .dockerignore
 node_modules
 npm-debug.log
