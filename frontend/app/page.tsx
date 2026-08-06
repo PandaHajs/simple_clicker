@@ -23,7 +23,6 @@ type ClickResponse = {
 
 const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_URL;
 const apiBasePath = process.env.NEXT_PUBLIC_API_BASE_PATH ?? "http://localhost:4000/api/flask";
-const socketPath = process.env.NEXT_PUBLIC_SOCKETIO_PATH ?? "/socket.io";
 
 export default function Home() {
   const [username, setUsername] = useState("");
@@ -57,7 +56,7 @@ export default function Home() {
     }
 
     const client = io(backendOrigin, {
-      path: socketPath,
+      transports: ["websocket"],
     });
 
     setSocket(client);
@@ -95,10 +94,10 @@ export default function Home() {
       setStatus("Disconnected");
     });
 
-    client.on("connect_error", (error) => {
-      console.error("Socket connect_error:", error);
-      setStatus(`Connection failed: ${error.message}`);
-    });
+client.on("connect_error", (error) => {
+  console.error("Socket connect_error:", error);
+  setStatus(`Connection failed: ${error.message}`);
+});
 
     return () => {
       client.disconnect();
@@ -111,7 +110,7 @@ export default function Home() {
       return;
     }
 
-    void fetch(`${apiBasePath}/get_score?session=${encodeURIComponent(session)}`)
+    void fetch(`${backendOrigin}/get_score?session=${encodeURIComponent(session)}`)
       .then(async (response) => {
         if (!response.ok) {
           return null;
@@ -128,7 +127,7 @@ export default function Home() {
   }, [session]);
 
   useEffect(() => {
-    void fetch(`${apiBasePath}/get_leaderboard`)
+    void fetch(`${backendOrigin}/get_leaderboard`)
       .then(async (response) => {
         if (!response.ok) {
           return null;
@@ -154,7 +153,7 @@ export default function Home() {
 
     setMessage("Creating your player...");
 
-    const response = await fetch(`${apiBasePath}/create_user`, {
+    const response = await fetch(`${backendOrigin}/create_user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -301,7 +300,7 @@ export default function Home() {
               {leaderboard.length === 0 ? (
                 <p className="text-sm text-slate-400">No scores yet. Be first.</p>
               ) : (
-                leaderboard.map((entry: LeaderboardEntry, index: number) => (
+                leaderboard.map((entry, index) => (
                   <div
                     key={`${entry.session}-${entry.username}`}
                     className="flex items-center justify-between rounded-2xl border border-white/8 bg-slate-900/60 px-4 py-3"

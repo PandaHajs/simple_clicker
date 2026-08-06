@@ -15,13 +15,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = environ.get("SECRET_KEY", "dev")
 
 db = SQLAlchemy(app)
-socketio_path = environ.get("SOCKETIO_PATH") or "socket.io"
-ws = SocketIO(
-    app,
-    cors_allowed_origins=environ.get("CORS_ORIGINS", "*"),
-    async_mode="threading",
-    socketio_path=socketio_path,
-)
+ws = SocketIO(app, cors_allowed_origins=environ.get("CORS_ORIGINS", "*"), async_mode="threading")
 
 
 class User(db.Model):
