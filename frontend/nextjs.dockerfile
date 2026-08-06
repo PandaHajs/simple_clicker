@@ -1,3 +1,5 @@
+# This file mirrors dockerfile.nextjs for Vercel container support.
+
 # ============================================
 # Stage 1: Dependencies Installation Stage
 # ============================================
@@ -80,6 +82,10 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+ARG NEXT_PUBLIC_BACKEND_URL
+ENV NEXT_PUBLIC_API_ENDPOINT=$NEXT_PUBLIC_BACKEND_URL
+ARG NEXT_PUBLIC_API_BASE_PATH
+ENV NEXT_PUBLIC_API_ENDPOINT=$NEXT_PUBLIC_API_BASE_PATH
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
