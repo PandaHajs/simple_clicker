@@ -7,7 +7,7 @@
         "backend": {
             "root": "backend",
             "framework": "flask",
-            "entrypoint": "python"
+            "entrypoint": "app.py"
         }
     },
     "rewrites": [
