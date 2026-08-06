@@ -56,7 +56,7 @@ export default function Home() {
     }
 
     const client = io(backendOrigin, {
-      path: '/flask/socket.io',
+      path: '/api/flask/socket.io',
       transports: ["websocket"],
     });
 
