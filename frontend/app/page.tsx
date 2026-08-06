@@ -21,7 +21,7 @@ type ClickResponse = {
   message?: string;
 };
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "/api/backend";
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "/flask";
 
 export default function Home() {
   const [username, setUsername] = useState("");
