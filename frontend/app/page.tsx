@@ -29,6 +29,7 @@ export default function Home() {
   const [username, setUsername] = useState("");
   const [session, setSession] = useState<string | null>(null);
   const [score, setScore] = useState(0);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   let backendOrigin = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000";
   const [status, setStatus] = useState("Disconnected");
   const [message, setMessage] = useState("Choose a name and start clicking.");
@@ -301,7 +302,7 @@ client.on("connect_error", (error) => {
               {leaderboard.length === 0 ? (
                 <p className="text-sm text-slate-400">No scores yet. Be first.</p>
               ) : (
-                leaderboard.map((entry, index) => (
+                leaderboard.map((entry: LeaderboardEntry, index: number) => (
                   <div
                     key={`${entry.session}-${entry.username}`}
                     className="flex items-center justify-between rounded-2xl border border-white/8 bg-slate-900/60 px-4 py-3"
