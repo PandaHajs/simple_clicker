@@ -145,4 +145,4 @@ def handle_click(data):
 
 if __name__ == "__main__":
     port = int(environ.get("PORT", 5000))
-    ws.run(app, host="182.0.0.1", port=port, debug=True, allow_unsafe_werkzeug=True)
+    ws.run(app, host="0.0.0.0", port=port, debug=True, allow_unsafe_werkzeug=True)
