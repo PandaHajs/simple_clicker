@@ -5,7 +5,9 @@
             "framework": "nextjs"
         },
         "backend": {
-            "root": "backend"
+            "root": "backend",
+            "framework": "flask",
+            "entrypoint": "python"
         }
     },
     "rewrites": [
