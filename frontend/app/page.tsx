@@ -29,7 +29,7 @@ export default function Home() {
   const [username, setUsername] = useState("");
   const [session, setSession] = useState<string | null>(null);
   const [score, setScore] = useState(0);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  let backendOrigin = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000";
   const [status, setStatus] = useState("Disconnected");
   const [message, setMessage] = useState("Choose a name and start clicking.");
   const [socket, setSocket] = useState<Socket | null>(null);
