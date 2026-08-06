@@ -2,11 +2,15 @@
     "services": {
         "frontend": {
             "root": "frontend",
-            "framework": "nextjs"
+            "framework": "nextjs",
+            "runtime": "container",
+            "buildCommand": "npm install && npm run build"
         },
         "backend": {
             "root": "backend",
             "framework": "flask",
+            "runtime": "container",
+            "buildCommand": "pip install -r requirements.txt && python app.py",
             "entrypoint": "app.py"
         }
     },
