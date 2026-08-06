@@ -110,7 +110,7 @@ client.on("connect_error", (error) => {
       return;
     }
 
-    void fetch(`${backendOrigin}/get_score?session=${encodeURIComponent(session)}`)
+    void fetch(`${apiBasePath}/get_score?session=${encodeURIComponent(session)}`)
       .then(async (response) => {
         if (!response.ok) {
           return null;
@@ -127,7 +127,7 @@ client.on("connect_error", (error) => {
   }, [session]);
 
   useEffect(() => {
-    void fetch(`${backendOrigin}/get_leaderboard`)
+    void fetch(`${apiBasePath}/get_leaderboard`)
       .then(async (response) => {
         if (!response.ok) {
           return null;
@@ -153,7 +153,7 @@ client.on("connect_error", (error) => {
 
     setMessage("Creating your player...");
 
-    const response = await fetch(`${backendOrigin}/create_user`, {
+    const response = await fetch(`${apiBasePath}/create_user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
