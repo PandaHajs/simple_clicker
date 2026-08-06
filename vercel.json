@@ -9,9 +9,7 @@
         "backend": {
             "root": "backend",
             "framework": "flask",
-            "runtime": "container",
-            "buildCommand": "pip install -r requirements.txt && python app.py",
-            "entrypoint": "Dockerfile"
+            "entrypoint": "app.py"
         }
     },
     "rewrites": [
