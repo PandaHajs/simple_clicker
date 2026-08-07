@@ -24,6 +24,12 @@ type ClickResponse = {
 	message?: string;
 };
 
+type Upgrade = {
+	upgrade_name: string;
+	upgrade_effect: string;
+	upgrade_cost: number;
+};
+
 const backendOrigin = process.env.NEXT_PUBLIC_BACKEND_URL;
 const apiBasePath =
 	process.env.NEXT_PUBLIC_API_BASE_PATH ?? "http://localhost:4000/api/flask";
@@ -35,9 +41,7 @@ export default function Home() {
 	const [points, setPoints] = useState(0);
 	const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 	const [upgrades, setUpgrades] = useState<{ [key: string]: number }>({});
-	const [upgradesList, setUpgradesList] = useState<{ [key: string]: number }>(
-		{},
-	);
+	const [upgradesList, setUpgradesList] = useState<Upgrade[]>([]);
 	const [status, setStatus] = useState("Disconnected");
 	const [message, setMessage] = useState("Choose a name and start clicking.");
 	const [socket, setSocket] = useState<Socket | null>(null);
@@ -193,7 +197,7 @@ export default function Home() {
 					return null;
 				}
 
-				return (await response.json()) as { [key: string]: number };
+				return (await response.json()) as Upgrade[];
 			})
 			.then((data) => {
 				if (data) {
