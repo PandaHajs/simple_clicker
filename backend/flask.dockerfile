@@ -1,4 +1,5 @@
-FROM python:3.12-slim
+FROM python:3.14.7-alpine3.24
+
 
 WORKDIR /app
 
@@ -8,4 +9,4 @@ RUN pip install -r requirements.txt
 COPY . .
 EXPOSE 4000
 
-CMD ["flask", "run", "--host=10.0.0.126", "--port=4000"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=4000"]

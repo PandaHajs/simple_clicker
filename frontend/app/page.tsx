@@ -12,12 +12,15 @@ type LeaderboardEntry = {
 type JoinResponse = {
 	ok: boolean;
 	score?: number;
+	currentPoints?: number;
+	upgrades?: { [key: string]: number };
 	message?: string;
 };
 
 type ClickResponse = {
 	ok: boolean;
 	score?: number;
+	currentPoints?: number;
 	message?: string;
 };
 
@@ -28,8 +31,13 @@ const apiBasePath =
 export default function Home() {
 	const [username, setUsername] = useState("");
 	const [session, setSession] = useState<string | null>(null);
-	const [score, setScore] = useState(0);
+	const [maxScore, setMaxScore] = useState(0);
+	const [points, setPoints] = useState(0);
 	const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+	const [upgrades, setUpgrades] = useState<{ [key: string]: number }>({});
+	const [upgradesList, setUpgradesList] = useState<{ [key: string]: number }>(
+		{},
+	);
 	const [status, setStatus] = useState("Disconnected");
 	const [message, setMessage] = useState("Choose a name and start clicking.");
 	const [socket, setSocket] = useState<Socket | null>(null);
@@ -72,23 +80,38 @@ export default function Home() {
 					return;
 				}
 
-				if (typeof response.score === "number") {
-					setScore(response.score);
+				if (
+					typeof response.score === "number" &&
+					typeof response.currentPoints === "number" &&
+					typeof response.upgrades === "object"
+				) {
+					setMaxScore(response.score);
+					setPoints(response.currentPoints);
+					setUpgrades(response.upgrades);
 				}
 			});
 		});
 
 		client.on(
 			"score_state",
-			(payload: { score: number; leaderboard: LeaderboardEntry[] }) => {
-				setScore(payload.score);
+			(payload: {
+				score: number;
+				currentPoints: number;
+				leaderboard: LeaderboardEntry[];
+			}) => {
+				setMaxScore(payload.score);
+				setPoints(payload.currentPoints);
 				setLeaderboard(payload.leaderboard);
 			},
 		);
 
-		client.on("score_update", (payload: { score: number }) => {
-			setScore(payload.score);
-		});
+		client.on(
+			"score_update",
+			(payload: { score: number; currentPoints: number }) => {
+				setMaxScore(payload.score);
+				setPoints(payload.currentPoints);
+			},
+		);
 
 		client.on(
 			"leaderboard_update",
@@ -96,6 +119,16 @@ export default function Home() {
 				setLeaderboard(payload.leaderboard);
 			},
 		);
+
+		client.on("upgrade_update", (payload) => {
+			setUpgrades(payload.upgrades);
+
+			setUpgradesList((prev) =>
+				prev.map((u) =>
+					u.upgrade_name === payload.upgrade.upgrade_name ? payload.upgrade : u,
+				),
+			);
+		});
 
 		client.on("disconnect", () => {
 			setStatus("Disconnected");
@@ -118,6 +151,22 @@ export default function Home() {
 		}
 
 		void fetch(
+			`${apiBasePath}/get_user_upgrades?session=${encodeURIComponent(session ?? "")}`,
+		)
+			.then(async (response) => {
+				if (!response.ok) {
+					return null;
+				}
+
+				return (await response.json()) as { [key: string]: number };
+			})
+			.then((data) => {
+				if (data) {
+					setUpgrades(data);
+				}
+			});
+
+		void fetch(
 			`${apiBasePath}/get_score?session=${encodeURIComponent(session)}`,
 		)
 			.then(async (response) => {
@@ -125,11 +174,30 @@ export default function Home() {
 					return null;
 				}
 
-				return (await response.json()) as { score: number };
+				return (await response.json()) as {
+					score: number;
+					currentPoints: number;
+				};
 			})
 			.then((data) => {
 				if (data) {
-					setScore(data.score);
+					setMaxScore(data.score);
+					setPoints(data.currentPoints);
+				}
+			});
+		void fetch(
+			`${apiBasePath}/get_upgrades?session=${encodeURIComponent(session ?? "")}`,
+		)
+			.then(async (response) => {
+				if (!response.ok) {
+					return null;
+				}
+
+				return (await response.json()) as { [key: string]: number };
+			})
+			.then((data) => {
+				if (data) {
+					setUpgradesList(data);
 				}
 			});
 	}, [session]);
@@ -174,6 +242,8 @@ export default function Home() {
 			session?: string;
 			username?: string;
 			score?: number;
+			currentPoints?: number;
+			upgrades?: { [key: string]: number };
 		};
 
 		if (!response.ok || !data.session) {
@@ -187,9 +257,37 @@ export default function Home() {
 		}
 
 		setSession(data.session);
-		setScore(data.score ?? 0);
+		setMaxScore(data.score ?? 0);
+		setPoints(data.currentPoints ?? 0);
+		setUpgrades(data.upgrades ?? {});
 		setMessage(
 			`Ready as ${data.username ?? trimmedUsername}. Click the button.`,
+		);
+	}
+
+	async function handleBuyUpgrade(upgradeName: string) {
+		if (!socket || !session) {
+			setMessage("Connect a player before buying upgrades.");
+			return;
+		}
+
+		socket.emit(
+			"buy_upgrade",
+			{ session, upgradeName },
+			(response: {
+				ok: boolean;
+				message?: string;
+				upgrades?: { [key: string]: number };
+			}) => {
+				if (!response?.ok) {
+					setMessage(response?.message ?? "Could not buy the upgrade.");
+					return;
+				}
+				if (response.upgrades) {
+					setUpgrades(response.upgrades);
+					setMessage(`Bought ${upgradeName}.`);
+				}
+			},
 		);
 	}
 
@@ -205,16 +303,20 @@ export default function Home() {
 				return;
 			}
 
-			if (typeof response.score === "number") {
-				setScore(response.score);
+			if (
+				typeof response.score === "number" &&
+				typeof response.currentPoints === "number"
+			) {
+				setMaxScore(response.score);
+				setPoints(response.currentPoints);
 			}
 		});
 	}
 
 	return (
-		<main className="min-h-screen bg-[radial-gradient(circle_at_top,_#1e293b,_#020617_65%)] px-6 py-10 text-white sm:px-10 lg:px-16">
+		<main className="min-h-screen bg-[radial-gradient(circle_at_top,#1e293b,#020617_65%)] px-6 py-10 text-white sm:px-10 lg:px-16">
 			<div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl gap-8 lg:grid-cols-[1.5fr_0.9fr]">
-				<section className="flex flex-col justify-between rounded-[2rem] border border-white/10 bg-white/8 p-8 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-10">
+				<section className="flex flex-col justify-between rounded-4xl border border-white/10 bg-white/8 p-8 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-10">
 					<div className="space-y-6">
 						<div className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-sm font-medium text-emerald-200">
 							{status}
@@ -232,6 +334,43 @@ export default function Home() {
 								immediately.
 							</p>
 						</div>
+					</div>
+
+					<div>
+						<h2 className="max-w-xl text-xl font-semibold tracking-tight text-white sm:text-xl">
+							Upgrades
+						</h2>
+
+						{Object.entries(upgradesList).length === 0 ? (
+							<p className="text-sm text-slate-400">No upgrades yet.</p>
+						) : (
+							<ul className="mt-2 space-y-2">
+								{upgradesList.map(
+									({ upgrade_name, upgrade_effect, upgrade_cost }) => (
+										<li
+											key={upgrade_name}
+											className="flex items-center justify-between rounded-2xl border border-white/8 bg-slate-900/60 px-4 py-3"
+										>
+											<span className="text-white">{upgrade_name}</span>
+											<span className="text-emerald-300">{upgrade_effect}</span>
+											<span className="text-slate-400">
+												Cost: {upgrade_cost}
+											</span>
+											<span className="text-slate-400">
+												Owned: {upgrades[upgrade_name] ?? 0}
+											</span>
+											<button
+												onClick={() => handleBuyUpgrade(upgrade_name)}
+												type="button"
+												className="ml-4 rounded-2xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
+											>
+												Buy
+											</button>
+										</li>
+									),
+								)}
+							</ul>
+						)}
 					</div>
 
 					<div className="grid gap-4 pt-8 sm:grid-cols-[1.2fr_0.8fr]">
@@ -252,7 +391,7 @@ export default function Home() {
 										value={username}
 										onChange={(event) => setUsername(event.target.value)}
 										placeholder="Enter a name"
-										className="h-12 flex-1 rounded-2xl border border-white/10 bg-slate-900/80 px-4 text-white outline-none transition placeholder:text-slate-400 focus:border-sky-400/60"
+										className="flex-1 rounded-2xl border border-white/10 bg-slate-900/80 px-4 text-white outline-none transition placeholder:text-slate-400 focus:border-sky-400/60"
 									/>
 									<button
 										type="submit"
@@ -280,7 +419,8 @@ export default function Home() {
 										}
 										setUsername("");
 										setSession(null);
-										setScore(0);
+										setMaxScore(0);
+										setPoints(0);
 										setMessage("Choose a name and start clicking.");
 									}}
 									type="button"
@@ -299,12 +439,18 @@ export default function Home() {
 					</div>
 				</section>
 
-				<aside className="flex flex-col gap-6 rounded-[2rem] border border-white/10 bg-slate-950/50 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
+				<aside className="flex flex-col gap-6 rounded-4xl border border-white/10 bg-slate-950/50 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
 					<div className="rounded-[1.75rem] border border-sky-400/20 bg-sky-400/10 p-6 text-center">
 						<p className="text-sm uppercase tracking-[0.3em] text-sky-200/70">
-							Score
+							Current Points
 						</p>
-						<div className="mt-3 text-6xl font-black text-white">{score}</div>
+						<div className="mt-3 text-5xl font-black text-white">{points}</div>
+						<p className="text-sm uppercase tracking-[0.3em] text-sky-200/70">
+							Max Score
+						</p>
+						<div className="mt-3 text-5xl font-black text-white">
+							{maxScore}
+						</div>
 						<button
 							type="button"
 							onClick={handleClick}
@@ -315,9 +461,16 @@ export default function Home() {
 						</button>
 					</div>
 
-					<div className="flex-1 rounded-[1.75rem] border border-white/10 bg-white/5 p-5">
+					<div className="flex-1 rounded-[1.75rem] border border-white/10 bg-white/5 p-5 overflow-auto max-block-120 scrollbar-thin scrollbar-thumb-slate-700/40 scrollbar-track-slate-900/20">
 						<div className="flex items-center justify-between">
-							<h2 className="text-lg font-semibold text-white">Leaderboard</h2>
+							<div>
+								<h2 className="text-lg font-semibold text-white">
+									Leaderboard
+								</h2>
+								<span className="text-sm text-slate-400">
+									All clicks combined
+								</span>
+							</div>
 							<span className="text-sm text-slate-400">Top 10</span>
 						</div>
 						<div className="mt-4 space-y-3">
